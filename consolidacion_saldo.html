@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consolidación de saldo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1f3a5c;
+    --navy-dark: #142a45;
+    --steel: #4d6b8a;
+    --accent: #2f7de1;
+    --accent-dark: #235fb0;
+    --bg: #eef2f6;
+    --card: #ffffff;
+    --line: #e1e7ee;
+    --text: #24313f;
+    --text-soft: #5b6b7c;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background:
+      radial-gradient(circle at 15% 10%, #f5f8fb 0%, transparent 45%),
+      linear-gradient(160deg, var(--bg), #e4eaf1 60%, #dde5ee 100%);
+    color: var(--text);
+    min-height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    overflow-x: hidden;
+  }
+
+  body.dodging {
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  .screen {
+    display: none;
+    width: 100%;
+    max-width: 620px;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .screen.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: 14px;
+    box-shadow: 0 10px 40px rgba(31, 58, 92, 0.12), 0 2px 6px rgba(31, 58, 92, 0.06);
+    border: 1px solid var(--line);
+    padding: 40px 36px;
+  }
+
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--steel);
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-optical-sizing: auto;
+    font-size: clamp(22px, 4vw, 30px);
+    color: var(--navy-dark);
+    line-height: 1.35;
+    margin: 0 0 10px;
+  }
+
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-optical-sizing: auto;
+    font-size: clamp(20px, 3.6vw, 26px);
+    color: var(--navy-dark);
+    margin: 0 0 24px;
+  }
+
+  .lead {
+    color: var(--text-soft);
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 30px;
+  }
+
+  .btn-primary {
+    position: relative;
+    display: inline-block;
+    background: linear-gradient(180deg, #4a94ee 0%, var(--accent) 55%, var(--accent-dark) 100%);
+    color: white;
+    border: none;
+    padding: 13px 30px;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 9px;
+    cursor: pointer;
+    box-shadow:
+      0 4px 0 #1c4c8f,
+      0 10px 18px rgba(31, 76, 143, 0.4),
+      inset 0 1px 1px rgba(255,255,255,0.55),
+      inset 0 -4px 6px rgba(15, 45, 90, 0.25);
+    text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    overflow: hidden;
+  }
+
+  .btn-primary::before {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 8%;
+    width: 84%;
+    height: 42%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.5), rgba(255,255,255,0));
+    border-radius: 8px;
+    pointer-events: none;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      0 5px 0 #1c4c8f,
+      0 12px 20px rgba(31, 76, 143, 0.45),
+      inset 0 1px 1px rgba(255,255,255,0.55),
+      inset 0 -4px 6px rgba(15, 45, 90, 0.25);
+  }
+
+  .btn-primary:active {
+    transform: translateY(3px);
+    box-shadow:
+      0 1px 0 #1c4c8f,
+      0 3px 8px rgba(31, 76, 143, 0.35),
+      inset 0 1px 1px rgba(255,255,255,0.4),
+      inset 0 -2px 4px rgba(15, 45, 90, 0.2);
+  }
+
+  .actions-right {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+  }
+
+  /* table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 28px;
+    font-size: 14px;
+  }
+
+  thead th {
+    text-align: left;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--steel);
+    font-weight: 600;
+    padding: 0 12px 12px;
+    border-bottom: 2px solid var(--navy);
+  }
+
+  thead th:not(:first-child) {
+    text-align: right;
+  }
+
+  tbody td {
+    padding: 12px;
+    border-bottom: 1px solid var(--line);
+    color: var(--text);
+  }
+
+  tbody td:not(:first-child) {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  tbody tr td:first-child {
+    color: var(--text-soft);
+  }
+
+  tr.total td {
+    border-top: 2px solid var(--navy);
+    border-bottom: none;
+    font-weight: 700;
+    color: var(--navy-dark);
+    padding-top: 14px;
+  }
+
+  .muted-cell {
+    color: #c3ccd6;
+  }
+
+  /* options list */
+  .option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 4px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .option:last-child {
+    border-bottom: none;
+  }
+
+  .option-label {
+    font-size: 16px;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .btn-select {
+    position: relative;
+    background: linear-gradient(180deg, #ffffff 0%, #f3f7fc 100%);
+    color: var(--accent-dark);
+    border: 1.5px solid var(--accent);
+    padding: 10px 22px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    box-shadow:
+      0 3px 0 #b9d4f5,
+      0 6px 10px rgba(47, 125, 225, 0.18),
+      inset 0 1px 0 rgba(255,255,255,0.8);
+    transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease, color 0.15s ease;
+  }
+
+  .btn-select:hover {
+    background: linear-gradient(180deg, #4a94ee 0%, var(--accent) 100%);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow:
+      0 4px 0 #1c4c8f,
+      0 8px 14px rgba(31, 76, 143, 0.3),
+      inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+
+  .btn-select:active {
+    transform: translateY(2px);
+    box-shadow:
+      0 1px 0 #1c4c8f,
+      0 2px 6px rgba(31, 76, 143, 0.25),
+      inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+
+  #dodgeBtn {
+    position: fixed;
+    z-index: 5;
+    touch-action: none;
+    user-select: none;
+    transition: top 0.16s ease-out, left 0.16s ease-out;
+  }
+
+  /* confirmation screen */
+  .field-row {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .field {
+    flex: 1;
+    min-width: 160px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 12px;
+    color: var(--steel);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+  }
+
+  .field input {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1.5px solid var(--line);
+    border-radius: 7px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  .field input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .field textarea {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1.5px solid var(--line);
+    border-radius: 7px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    resize: vertical;
+  }
+
+  .field textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .confirm-note {
+    display: none;
+    margin-top: 20px;
+    padding: 14px 16px;
+    background: #eef7f0;
+    border: 1px solid #bfe3c8;
+    border-radius: 8px;
+    color: #2c6b3f;
+    font-size: 14px;
+  }
+
+  .confirm-note.show {
+    display: block;
+  }
+
+  .footer-note {
+    text-align: center;
+    font-size: 11px;
+    color: #9aa7b4;
+    margin-top: 18px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Screen 1 -->
+<div class="screen active" id="screen1">
+  <div class="card">
+    <div class="eyebrow">Estado de cuenta · Ref. 0426</div>
+    <h1>Consolidación de saldo de torta chilena y envío</h1>
+    <p class="lead">Hemos preparado el detalle de conceptos pendientes para su revisión. A continuación encontrará el desglose correspondiente.</p>
+    <div class="actions-right">
+      <button class="btn-primary" onclick="goTo('screen2')">Continuar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 2 -->
+<div class="screen" id="screen2">
+  <div class="card">
+    <div class="eyebrow">Detalle de conceptos</div>
+    <h2>Comparación de saldos</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Concepto</th>
+          <th>Torta Chilena</th>
+          <th>Servicios de PenTesting de Ciberseguridad</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Precio</td>
+          <td>$6</td>
+          <td class="muted-cell">—</td>
+        </tr>
+        <tr>
+          <td>Empaque</td>
+          <td>$1</td>
+          <td class="muted-cell">—</td>
+        </tr>
+        <tr>
+          <td>Transporte en carroza de FedEx</td>
+          <td>$5,683</td>
+          <td class="muted-cell">—</td>
+        </tr>
+        <tr>
+          <td>Precio</td>
+          <td class="muted-cell">—</td>
+          <td>$5,690</td>
+        </tr>
+        <tr class="total">
+          <td>Total</td>
+          <td>$5,690</td>
+          <td>$5,690</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="actions-right">
+      <button class="btn-primary" onclick="goTo('screen3')">Continuar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 3 -->
+<div class="screen" id="screen3">
+  <div class="card">
+    <div class="eyebrow">Paso final</div>
+    <h2>Opciones</h2>
+
+    <div class="option">
+      <span class="option-label">Netear los saldos</span>
+      <button class="btn-select" id="staticDecoyBtn" style="visibility:hidden;" tabindex="-1">Seleccionar</button>
+    </div>
+
+    <div class="option">
+      <span class="option-label">Un café o una cena para conversar</span>
+      <button class="btn-select" onclick="goTo('screen4')">Seleccionar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 4 -->
+<div class="screen" id="screen4">
+  <div class="card">
+    <div class="eyebrow">Confirmación</div>
+    <h2>Nos encanta hacer negocios con usted, por favor confirmar fecha y hora</h2>
+    <div class="field-row">
+      <div class="field">
+        <label for="dateInput">Fecha</label>
+        <input type="date" id="dateInput">
+      </div>
+      <div class="field">
+        <label for="timeInput">Hora</label>
+        <input type="time" id="timeInput">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field" style="flex-basis: 100%;">
+        <label for="commentInput">Comentario (opcional)</label>
+        <textarea id="commentInput" rows="3" placeholder="Algo que quieras agregar..."></textarea>
+      </div>
+    </div>
+    <div class="actions-right">
+      <button class="btn-primary" onclick="confirmDate()">Confirmar</button>
+    </div>
+    <div class="confirm-note" id="confirmNote">Se abrió WhatsApp con los datos completados — solo falta enviar el mensaje.</div>
+  </div>
+</div>
+
+<!-- The actual dodging button, positioned over screen3 once it's active -->
+<button id="dodgeBtn" class="btn-select" style="display:none;">Seleccionar</button>
+
+<script>
+  function goTo(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+
+    if (id === 'screen3') {
+      setupDodgeButton();
+    } else {
+      teardownDodgeButton();
+    }
+  }
+
+  function confirmDate() {
+    const date = document.getElementById('dateInput').value;
+    const time = document.getElementById('timeInput').value;
+    const comment = document.getElementById('commentInput').value.trim();
+
+    let message = 'Confirmo la reunión';
+    if (date) {
+      const [y, m, d] = date.split('-');
+      message += ` para el ${d}/${m}/${y}`;
+    }
+    if (time) {
+      message += ` a las ${time}`;
+    }
+    if (comment) {
+      message += `. Comentario: ${comment}`;
+    }
+    message += '.';
+
+    const phone = '50688303661';
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+
+    document.getElementById('confirmNote').classList.add('show');
+  }
+
+  // --- Dodging button logic ---
+  const dodgeBtn = document.getElementById('dodgeBtn');
+  let dodgeActive = false;
+
+  function setupDodgeButton() {
+    dodgeActive = true;
+    document.body.classList.add('dodging');
+    dodgeBtn.style.display = 'inline-block';
+
+    // position it right where the decoy label's button would be
+    const decoy = document.getElementById('staticDecoyBtn');
+    const rect = decoy.getBoundingClientRect();
+    dodgeBtn.style.left = rect.left + 'px';
+    dodgeBtn.style.top = rect.top + 'px';
+  }
+
+  function teardownDodgeButton() {
+    dodgeActive = false;
+    document.body.classList.remove('dodging');
+    dodgeBtn.style.display = 'none';
+  }
+
+  function moveButtonAwayFrom(x, y) {
+    const rect = dodgeBtn.getBoundingClientRect();
+    const btnW = rect.width;
+    const btnH = rect.height;
+    const margin = 20;
+    let newX, newY, distance, attempts = 0;
+
+    do {
+      newX = margin + Math.random() * (window.innerWidth - btnW - margin * 2);
+      newY = margin + Math.random() * (window.innerHeight - btnH - margin * 2);
+      const cx = newX + btnW / 2;
+      const cy = newY + btnH / 2;
+      distance = Math.hypot(cx - x, cy - y);
+      attempts++;
+    } while (distance < 200 && attempts < 20);
+
+    dodgeBtn.style.left = newX + 'px';
+    dodgeBtn.style.top = newY + 'px';
+  }
+
+  function handlePointerMove(x, y) {
+    if (!dodgeActive) return;
+    const rect = dodgeBtn.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dist = Math.hypot(cx - x, cy - y);
+    if (dist < 130) {
+      moveButtonAwayFrom(x, y);
+    }
+  }
+
+  document.addEventListener('mousemove', (e) => handlePointerMove(e.clientX, e.clientY));
+  document.addEventListener('touchstart', (e) => {
+    const t = e.touches[0];
+    if (t) handlePointerMove(t.clientX, t.clientY);
+  }, { passive: true });
+  document.addEventListener('touchmove', (e) => {
+    const t = e.touches[0];
+    if (t) handlePointerMove(t.clientX, t.clientY);
+  }, { passive: true });
+
+  dodgeBtn.addEventListener('click', (e) => {
+    moveButtonAwayFrom(e.clientX, e.clientY);
+  });
+
+  window.addEventListener('resize', () => {
+    if (dodgeActive) setupDodgeButton();
+  });
+</script>
+
+</body>
+</html>
